@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify, send_file
-import psycopg2
+import psycopg
 import os
 
 app = Flask(__name__)
@@ -7,7 +7,7 @@ app = Flask(__name__)
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 def get_connection():
-    return psycopg2.connect(DATABASE_URL)
+    return psycopg.connect(DATABASE_URL)
 
 
 def init_db():
