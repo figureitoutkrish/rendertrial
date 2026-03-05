@@ -77,3 +77,27 @@ def get_student(sap):
         })
 
     return jsonify({"message":"Student not found"})
+
+@app.route("/get_all_students")
+def get_all_students():
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("SELECT * FROM students")
+    rows = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    students = []
+
+    for row in rows:
+        students.append({
+            "sap": row[0],
+            "name": row[1],
+            "age": row[2],
+            "marks": row[3]
+        })
+
+    return jsonify(students)
