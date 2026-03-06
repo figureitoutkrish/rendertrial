@@ -1,41 +1,41 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 <title>Student Database</title>
 
 <style>
 
 body{
-font-family: Arial;
-background:#0f172a;
+font-family:Arial;
+background:#111827;
 color:white;
 text-align:center;
 padding:40px;
 }
 
 .container{
+background:#1f2937;
+padding:30px;
+border-radius:10px;
 width:400px;
 margin:auto;
-background:#1e293b;
-padding:20px;
-border-radius:10px;
 }
 
 input{
-width:90%;
 padding:10px;
 margin:8px;
-border-radius:5px;
+width:90%;
 border:none;
+border-radius:5px;
 }
 
 button{
 padding:10px 20px;
-margin:10px;
-border:none;
-border-radius:5px;
 background:#3b82f6;
 color:white;
+border:none;
+border-radius:5px;
 cursor:pointer;
 }
 
@@ -48,6 +48,7 @@ margin-top:20px;
 }
 
 </style>
+
 </head>
 
 <body>
@@ -69,28 +70,27 @@ margin-top:20px;
 
 <hr>
 
-<h2>Find Student</h2>
+<h2>Search Student</h2>
 
 <input id="searchSap" placeholder="Enter SAP ID">
 
 <br>
 
-<button onclick="findStudent()">Search</button>
+<button onclick="searchStudent()">Search</button>
 
 <div id="result"></div>
 
 </div>
 
-
 <script>
 
 function addStudent(){
 
-let data = {
-name: document.getElementById("name").value,
-sap: document.getElementById("sap").value,
-age: document.getElementById("age").value,
-marks: document.getElementById("marks").value
+let data={
+name:document.getElementById("name").value,
+sap:document.getElementById("sap").value,
+age:document.getElementById("age").value,
+marks:document.getElementById("marks").value
 }
 
 fetch("/add_student",{
@@ -105,66 +105,29 @@ alert(data.message)
 
 }
 
-function findStudent(){
+function searchStudent(){
 
-let sap = document.getElementById("searchSap").value
+let sap=document.getElementById("searchSap").value
 
 fetch("/get_student/"+sap)
 .then(res=>res.json())
 .then(data=>{
 
-let result = document.getElementById("result")
+let result=document.getElementById("result")
 
 if(data.name){
 
-result.innerHTML = `
-<p>Name: ${data.name}</p>
-<p>Age: ${data.age}</p>
-<p>Marks: ${data.marks}</p>
-`
+result.innerHTML=
+"<p>Name: "+data.name+"</p>"+
+"<p>Age: "+data.age+"</p>"+
+"<p>Marks: "+data.marks+"</p>"
 
 }
 else{
 
-result.innerHTML = "<p>Student not found</p>"
+result.innerHTML="<p>Student not found</p>"
 
 }
-
-})
-
-}
-<button onclick="loadStudents()">View All Students</button>
-<div id="studentsTable"></div>
-function loadStudents(){
-
-fetch("/get_all_students")
-.then(res=>res.json())
-.then(data=>{
-
-let html = `
-<table border="1" style="margin:auto;margin-top:20px">
-<tr>
-<th>SAP</th>
-<th>Name</th>
-<th>Age</th>
-<th>Marks</th>
-</tr>
-`
-
-data.forEach(student=>{
-html += `
-<tr>
-<td>${student.sap}</td>
-<td>${student.name}</td>
-<td>${student.age}</td>
-<td>${student.marks}</td>
-</tr>
-`
-})
-
-html += "</table>"
-
-document.getElementById("studentsTable").innerHTML = html
 
 })
 
@@ -173,4 +136,5 @@ document.getElementById("studentsTable").innerHTML = html
 </script>
 
 </body>
+
 </html>
