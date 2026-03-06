@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify, send_file
-import psycopg
+import psycopg2
 import os
 
 app = Flask(__name__)
@@ -8,7 +8,7 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 
 
 def get_connection():
-    return psycopg.connect(DATABASE_URL)
+    return psycopg2.connect(DATABASE_URL)
 
 
 def init_db():
@@ -83,14 +83,12 @@ def get_student(sap):
     conn.close()
 
     if student:
-        return jsonify(
-            {
-                "sap": student[0],
-                "name": student[1],
-                "age": student[2],
-                "marks": student[3],
-            }
-        )
+        return jsonify({
+            "sap": student[0],
+            "name": student[1],
+            "age": student[2],
+            "marks": student[3]
+        })
 
     return jsonify({"message": "Student not found"})
 
