@@ -1,97 +1,86 @@
-from flask import Flask, request, jsonify, send_file
-import psycopg2
+from flask import Flask, render_template, request, redirect
+from sqlalchemy import create_engine, text
 import os
 
 app = Flask(__name__)
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
+engine = create_engine(DATABASE_URL)
 
-def get_connection():
-    return psycopg2.connect(DATABASE_URL)
-
-
-def init_db():
-    conn = get_connection()
-    cur = conn.cursor()
-
-    cur.execute("""
-    CREATE TABLE IF NOT EXISTS students(
-        sap TEXT PRIMARY KEY,
-        name TEXT,
-        age INT,
-        marks INT
-    )
-    """)
-
+# Create table if not exists
+with engine.connect() as conn:
+    conn.execute(text("""
+        CREATE TABLE IF NOT EXISTS students(
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(100),
+            sapid VARCHAR(50),
+            age INTEGER,
+            marks INTEGER,
+            department VARCHAR(100)
+        )
+    """))
     conn.commit()
-    cur.close()
-    conn.close()
+
+@app.route("/", methods=["GET","POST"])
+def index():
+
+    if request.method == "POST":
+
+        name = request.form["name"]
+        sapid = request.form["sapid"]
+        age = request.form["age"]
+        marks = request.form["marks"]
+        department = request.form["department"]
+
+        with engine.connect() as conn:
+            conn.execute(text("""
+                INSERT INTO students(name,sapid,age,marks,department)
+                VALUES(:name,:sapid,:age,:marks,:department)
+            """),{
+                "name":name,
+                "sapid":sapid,
+                "age":age,
+                "marks":marks,
+                "department":department
+            })
+            conn.commit()
+
+        return redirect("/")
 
 
-init_db()
+    name = request.args.get("name")
+    sapid = request.args.get("sapid")
+    department = request.args.get("department")
+    min_marks = request.args.get("min_marks")
+    max_age = request.args.get("max_age")
+
+    query = "SELECT * FROM students WHERE 1=1"
+    params = {}
+
+    if name:
+        query += " AND LOWER(name) LIKE LOWER(:name)"
+        params["name"] = f"%{name}%"
+
+    if sapid:
+        query += " AND sapid = :sapid"
+        params["sapid"] = sapid
+
+    if department:
+        query += " AND LOWER(department) LIKE LOWER(:department)"
+        params["department"] = f"%{department}%"
+
+    if min_marks:
+        query += " AND marks >= :min_marks"
+        params["min_marks"] = int(min_marks)
+
+    if max_age:
+        query += " AND age <= :max_age"
+        params["max_age"] = int(max_age)
 
 
-@app.route("/")
-def home():
-    return send_file("app.html")
+    with engine.connect() as conn:
+        students = conn.execute(text(query),params).fetchall()
 
 
-@app.route("/add_student", methods=["POST"])
-def add_student():
-
-    data = request.json
-
-    conn = get_connection()
-    cur = conn.cursor()
-
-    cur.execute(
-        """
-        INSERT INTO students (sap, name, age, marks)
-        VALUES (%s,%s,%s,%s)
-        ON CONFLICT (sap)
-        DO UPDATE SET name=%s, age=%s, marks=%s
-        """,
-        (
-            data["sap"],
-            data["name"],
-            data["age"],
-            data["marks"],
-            data["name"],
-            data["age"],
-            data["marks"],
-        ),
-    )
-
-    conn.commit()
-    cur.close()
-    conn.close()
-
-    return jsonify({"message": "Student added"})
-
-
-@app.route("/get_student/<sap>")
-def get_student(sap):
-
-    conn = get_connection()
-    cur = conn.cursor()
-
-    cur.execute("SELECT * FROM students WHERE sap=%s", (sap,))
-    student = cur.fetchone()
-
-    cur.close()
-    conn.close()
-
-    if student:
-        return jsonify({
-            "sap": student[0],
-            "name": student[1],
-            "age": student[2],
-            "marks": student[3]
-        })
-
-    return jsonify({"message": "Student not found"})
-
-
-if __name__ == "__main__":
-    app.run()
+    return render_template("index.html", students=students)

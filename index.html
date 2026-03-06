@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Student Database</title>
+
+<style>
+
+body{
+font-family: Arial;
+background:#f5f6fa;
+margin:40px;
+}
+
+.container{
+max-width:900px;
+margin:auto;
+background:white;
+padding:25px;
+border-radius:10px;
+box-shadow:0 2px 10px rgba(0,0,0,0.1);
+}
+
+h2{
+border-bottom:2px solid #eee;
+padding-bottom:5px;
+}
+
+form{
+margin-bottom:20px;
+}
+
+input,select{
+padding:8px;
+margin:5px;
+border:1px solid #ccc;
+border-radius:5px;
+}
+
+button{
+padding:8px 14px;
+background:#2f80ed;
+color:white;
+border:none;
+border-radius:5px;
+cursor:pointer;
+}
+
+button:hover{
+background:#1c60b3;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:15px;
+}
+
+th,td{
+padding:10px;
+border-bottom:1px solid #ddd;
+text-align:center;
+}
+
+th{
+background:#2f80ed;
+color:white;
+}
+
+tr:hover{
+background:#f1f3f5;
+}
+
+.filters{
+background:#f9fafb;
+padding:15px;
+border-radius:8px;
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+<div class="container">
+
+<h2>Add Student</h2>
+
+<form method="POST">
+
+<input type="text" name="name" placeholder="Student Name" required>
+
+<input type="text" name="sapid" placeholder="SAP ID" required>
+
+<input type="number" name="age" placeholder="Age" required>
+
+<input type="number" name="marks" placeholder="Marks" required>
+
+<input type="text" name="department" placeholder="Department">
+
+<button type="submit">Add Student</button>
+
+</form>
+
+<hr>
+
+<h2>Filter Students</h2>
+
+<div class="filters">
+
+<form method="GET">
+
+<input type="text" name="name" placeholder="Search by Name (Primary Filter)">
+
+<input type="text" name="sapid" placeholder="Search by SAP ID">
+
+<input type="text" name="department" placeholder="Department">
+
+<input type="number" name="min_marks" placeholder="Min Marks">
+
+<input type="number" name="max_age" placeholder="Max Age">
+
+<button type="submit">Apply Filters</button>
+
+<a href="/">
+<button type="button">Reset</button>
+</a>
+
+</form>
+
+</div>
+
+<hr>
+
+<h2>Student List</h2>
+
+<table>
+
+<tr>
+<th>ID</th>
+<th>Name</th>
+<th>SAP ID</th>
+<th>Age</th>
+<th>Marks</th>
+<th>Department</th>
+</tr>
+
+{% for s in students %}
+
+<tr>
+<td>{{s.id}}</td>
+<td>{{s.name}}</td>
+<td>{{s.sapid}}</td>
+<td>{{s.age}}</td>
+<td>{{s.marks}}</td>
+<td>{{s.department}}</td>
+</tr>
+
+{% endfor %}
+
+</table>
+
+</div>
+
+</body>
+</html>
